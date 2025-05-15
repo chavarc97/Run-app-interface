@@ -6,6 +6,7 @@ import useAuthStore from "../store/authStore";
 const SignUp = () => {
   const navigate = useNavigate();
   const { signUp, loading, error, isAuthenticated, clearError } = useAuthStore();
+  const { user } = useAuthStore();
   
   const [formData, setFormData] = useState({
     username: "",
@@ -19,8 +20,13 @@ const SignUp = () => {
   
   // If user is already authenticated, redirect to dashboard
   useEffect(() => {
+
     if (isAuthenticated) {
-      navigate("/");
+      if (user?.vDot.value == null) {
+        navigate("/userSetUp");
+      } else {
+        navigate("/");
+      }
     }
     
     // Clear any previous errors when component mounts
