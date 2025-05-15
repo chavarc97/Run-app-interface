@@ -14,7 +14,7 @@ export default function WeekSelector({ startDate, onDateChange, weekNumber, onWe
   };
 
   return (
-    <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+    <div className="flex items-center justify-between p-4 bg-zinc-200/30 rounded-lg">
       <button
         type="button"
         onClick={handlePrevWeek}

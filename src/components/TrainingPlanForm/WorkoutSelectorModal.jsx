@@ -18,11 +18,11 @@ export default function WorkoutSelectorModal({ isOpen, onClose, onSelect }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-        <div className="p-4 border-b border-gray-700">
+      <div className="bg-zinc-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="p-4 border-b border-zinc-700">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-medium text-white">Select Workout</h3>
-            <button onClick={onClose} className="text-gray-400 hover:text-white">
+            <button onClick={onClose} className="text-zinc-400 p-1 rounded hover:text-red-400 cursor-pointer bg-red-400/20">
               <XIcon className="h-5 w-5" />
             </button>
           </div>
@@ -33,34 +33,28 @@ export default function WorkoutSelectorModal({ isOpen, onClose, onSelect }) {
               placeholder="Search workouts..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-gray-700 text-white px-4 py-2 rounded"
+              className="w-full bg-zinc-700 text-white px-4 py-2 rounded"
             />
           </div>
         </div>
         
         <div className="flex-1 overflow-y-auto">
           {isLoading ? (
-            <div className="p-4 text-center text-gray-400">Loading workouts...</div>
+            <div className="p-4 text-center text-zinc-400">Loading workouts...</div>
           ) : error ? (
             <div className="p-4 text-center text-red-400">{error}</div>
           ) : filteredWorkouts.length === 0 ? (
             <div className="p-4 text-center space-y-4">
-              <p className="text-gray-400">
+              <p className="text-zinc-400">
                 {searchTerm ? 'No matching workouts found' : 'No workouts available'}
               </p>
-              {/* <button
-                onClick={() => setShowCreateModal(true)}
-                className="px-4 py-2 bg-vdot-blue hover:bg-vdot-blue-dark text-white rounded"
-              >
-                Create New Workout
-              </button> */}
             </div>
           ) : (
-            <ul className="divide-y divide-gray-700">
+            <ul className="divide-y divide-zinc-700">
               {filteredWorkouts.map(workout => (
                 <li 
                   key={workout._id} 
-                  className={`p-4 hover:bg-gray-700 cursor-pointer ${selectedWorkout?._id === workout._id ? 'bg-gray-700' : ''}`}
+                  className={`p-4 hover:bg-zinc-700 cursor-pointer ${selectedWorkout?._id === workout._id ? 'bg-zinc-300/20' : ''}`}
                   onClick={() => setSelectedWorkout(workout)}
                 >
                   <div className="flex justify-between">
@@ -69,7 +63,7 @@ export default function WorkoutSelectorModal({ isOpen, onClose, onSelect }) {
                       {workout.totalDistance?.toFixed(1)} km
                     </span>
                   </div>
-                  <div className="text-sm text-gray-400 mt-1">
+                  <div className="text-sm text-zinc-400 mt-1">
                     {workout.estimatedDuration} min
                   </div>
                 </li>
@@ -78,7 +72,7 @@ export default function WorkoutSelectorModal({ isOpen, onClose, onSelect }) {
           )}
         </div>
         
-        <div className="p-4 border-t border-gray-700 flex justify-between">
+        <div className="p-4 border-t border-zinc-700 flex justify-between">
           <button
             type="button"
             onClick={() => setShowCreateModal(true)}
@@ -90,7 +84,7 @@ export default function WorkoutSelectorModal({ isOpen, onClose, onSelect }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-300 hover:text-white"
+              className="px-4 py-2 rounded text-zinc-300 bg-red-500/20 hover:text-red-400"
             >
               Cancel
             </button>
@@ -102,7 +96,7 @@ export default function WorkoutSelectorModal({ isOpen, onClose, onSelect }) {
                 }
               }}
               disabled={!selectedWorkout}
-              className={`px-4 py-2 rounded ${selectedWorkout ? 'bg-vdot-blue hover:bg-vdot-blue-dark text-white' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}`}
+              className={`px-4 py-2 rounded bg-zinc-300/20 ${selectedWorkout ? 'bg-vdot-blue hover:bg-vdot-blue-dark text-white' : 'bg-zinc-700 text-zinc-500 cursor-not-allowed'}`}
             >
               Select Workout
             </button>

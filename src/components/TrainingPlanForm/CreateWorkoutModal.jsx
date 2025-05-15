@@ -216,15 +216,15 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-4 border-b border-gray-700">
+      <div className="bg-zinc-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-4 border-b border-zinc-700">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-medium text-white">
               Create New Workout
             </h3>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-white"
+              className="text-zinc-400 hover:text-white"
             >
               <XIcon className="h-5 w-5" />
             </button>
@@ -239,26 +239,26 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-zinc-300 mb-1">
               Workout Name
             </label>
             <input
               type="text"
               value={workoutName}
               onChange={(e) => setWorkoutName(e.target.value)}
-              className="w-full bg-gray-700 text-white px-3 py-2 rounded"
+              className="w-full bg-zinc-700 text-white px-3 py-2 rounded"
               required
               maxLength={25}
             />
           </div>
 
           {/* Warm Up Section */}
-          <div className="border border-gray-700 rounded p-4">
+          <div className="border border-zinc-700 rounded p-4">
             <h4 className="text-sm font-medium text-vdot-blue mb-3">Warm Up</h4>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-zinc-300 mb-1">
                   Time (mm:ss)
                 </label>
                 <input
@@ -268,13 +268,13 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                     setWarmUp({ ...warmUp, time: e.target.value })
                   }
                   placeholder="00:00"
-                  className="w-full bg-gray-700 text-white px-3 py-2 rounded"
+                  className="w-full bg-zinc-700 text-white px-3 py-2 rounded"
                   pattern="^([0-5][0-9]):[0-5][0-9]$"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-zinc-300 mb-1">
                   Distance
                 </label>
                 <div className="flex">
@@ -287,7 +287,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                         distance: { ...warmUp.distance, value: e.target.value },
                       })
                     }
-                    className="w-full bg-gray-700 text-white px-3 py-2 rounded rounded-r-none"
+                    className="w-full bg-zinc-700 text-white px-3 py-2 rounded rounded-r-none"
                   />
                   <select
                     value={warmUp.distance.unit}
@@ -297,7 +297,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                         distance: { ...warmUp.distance, unit: e.target.value },
                       })
                     }
-                    className="bg-gray-700 text-white px-2 rounded rounded-l-none border-l border-gray-600"
+                    className="bg-zinc-700 text-white px-2 rounded rounded-l-none border-l border-zinc-600"
                   >
                     <option value="m">m</option>
                     <option value="km">km</option>
@@ -309,7 +309,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
 
             {/* pace input */}
             <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-zinc-300 mb-1">
                 Pace (mm:ss)
               </label>
               <div className="flex space-x-2">
@@ -321,7 +321,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                       pace: { ...warmUp.pace, type: e.target.value },
                     })
                   }
-                  className="bg-gray-700 text-white px-2 py-2 rounded"
+                  className="bg-zinc-700 text-white px-2 py-2 rounded"
                 >
                   <option value="easy">Easy</option>
                   <option value="marathon">Marathon</option>
@@ -350,7 +350,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                   }
                   pattern="^(\d{1,2}):[0-5][0-9]$"
                   placeholder="05:30"
-                  className="flex-1 bg-gray-700 text-white px-3 py-2 rounded"
+                  className="flex-1 bg-zinc-700 text-white px-3 py-2 rounded"
                 />
                 {warmUp.pace.pace &&
                   !/^(\d{1,2}):[0-5][0-9]$/.test(warmUp.pace.pace) && (
@@ -378,9 +378,9 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
             </div>
 
             {workSegments.map((segment, index) => (
-              <div key={index} className="border border-gray-700 rounded p-4">
+              <div key={index} className="border border-zinc-700 rounded p-4">
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-sm font-medium text-gray-300">
+                  <span className="text-sm font-medium text-zinc-300">
                     Segment {index + 1}
                   </span>
                   {workSegments.length > 1 && (
@@ -396,7 +396,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-zinc-300 mb-1">
                       Type
                     </label>
                     <select
@@ -404,7 +404,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                       onChange={(e) =>
                         updateWorkSegment(index, "type", e.target.value)
                       }
-                      className="w-full bg-gray-700 text-white px-3 py-2 rounded"
+                      className="w-full bg-zinc-700 text-white px-3 py-2 rounded"
                     >
                       <option value="distance">Distance</option>
                       <option value="time">Time</option>
@@ -413,7 +413,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
 
                   {segment.type === "distance" ? (
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">
+                      <label className="block text-sm font-medium text-zinc-300 mb-1">
                         Distance
                       </label>
                       <div className="flex">
@@ -427,7 +427,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                               e.target.value
                             )
                           }
-                          className="w-full bg-gray-700 text-white px-3 py-2 rounded rounded-r-none"
+                          className="w-full bg-zinc-700 text-white px-3 py-2 rounded rounded-r-none"
                         />
                         <select
                           value={segment.distance.unit}
@@ -438,7 +438,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                               e.target.value
                             )
                           }
-                          className="bg-gray-700 text-white px-2 rounded rounded-l-none border-l border-gray-600"
+                          className="bg-zinc-700 text-white px-2 rounded rounded-l-none border-l border-zinc-600"
                         >
                           <option value="m">m</option>
                           <option value="km">km</option>
@@ -448,7 +448,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                     </div>
                   ) : (
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">
+                      <label className="block text-sm font-medium text-zinc-300 mb-1">
                         Time (mm:ss)
                       </label>
                       <input
@@ -458,14 +458,14 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                           updateWorkSegment(index, "time", e.target.value)
                         }
                         placeholder="00:00"
-                        className="w-full bg-gray-700 text-white px-3 py-2 rounded"
+                        className="w-full bg-zinc-700 text-white px-3 py-2 rounded"
                         pattern="^([0-5][0-9]):[0-5][0-9]$"
                       />
                     </div>
                   )}
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-zinc-300 mb-1">
                       Repetitions
                     </label>
                     <input
@@ -479,12 +479,12 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                           parseInt(e.target.value)
                         )
                       }
-                      className="w-full bg-gray-700 text-white px-3 py-2 rounded"
+                      className="w-full bg-zinc-700 text-white px-3 py-2 rounded"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-zinc-300 mb-1">
                       Pace (mm:ss)
                     </label>
                     <div className="flex space-x-2">
@@ -493,7 +493,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                         onChange={(e) =>
                           updateWorkSegment(index, "pace.type", e.target.value)
                         }
-                        className="bg-gray-700 text-white px-2 py-2 rounded"
+                        className="bg-zinc-700 text-white px-2 py-2 rounded"
                       >
                         <option value="easy">Easy</option>
                         <option value="marathon">Marathon</option>
@@ -532,7 +532,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                           }
                         }}
                         placeholder="05:30"
-                        className="w-full bg-gray-700 text-white px-3 py-2 rounded"
+                        className="w-full bg-zinc-700 text-white px-3 py-2 rounded"
                       />
                       {segment.pace.pace &&
                         !/^(\d{1,2}):[0-5][0-9]$/.test(segment.pace.pace) && (
@@ -548,14 +548,14 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
           </div>
 
           {/* Cool Down Section */}
-          <div className="border border-gray-700 rounded p-4">
+          <div className="border border-zinc-700 rounded p-4">
             <h4 className="text-sm font-medium text-vdot-blue mb-3">
               Cool Down
             </h4>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-zinc-300 mb-1">
                   Time (mm:ss)
                 </label>
                 <input
@@ -565,13 +565,13 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                     setCoolDown({ ...coolDown, time: e.target.value })
                   }
                   placeholder="00:00"
-                  className="w-full bg-gray-700 text-white px-3 py-2 rounded"
+                  className="w-full bg-zinc-700 text-white px-3 py-2 rounded"
                   pattern="^([0-5][0-9]):[0-5][0-9]$"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-zinc-300 mb-1">
                   Distance
                 </label>
                 <div className="flex">
@@ -587,7 +587,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                         },
                       })
                     }
-                    className="w-full bg-gray-700 text-white px-3 py-2 rounded rounded-r-none"
+                    className="w-full bg-zinc-700 text-white px-3 py-2 rounded rounded-r-none"
                   />
                   <select
                     value={coolDown.distance.unit}
@@ -600,7 +600,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                         },
                       })
                     }
-                    className="bg-gray-700 text-white px-2 rounded rounded-l-none border-l border-gray-600"
+                    className="bg-zinc-700 text-white px-2 rounded rounded-l-none border-l border-zinc-600"
                   >
                     <option value="m">m</option>
                     <option value="km">km</option>
@@ -611,7 +611,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
             </div>
 
             <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-zinc-300 mb-1">
                 Pace (mm:ss)
               </label>
               <div className="flex space-x-2">
@@ -623,7 +623,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                       pace: { ...coolDown.pace, type: e.target.value },
                     })
                   }
-                  className="bg-gray-700 text-white px-2 py-2 rounded"
+                  className="bg-zinc-700 text-white px-2 py-2 rounded"
                 >
                   <option value="easy">Easy</option>
                   <option value="marathon">Marathon</option>
@@ -653,7 +653,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                   }
                   pattern="^(\d{1,2}):[0-5][0-9]$"
                   placeholder="05:30"
-                  className="flex-1 bg-gray-700 text-white px-3 py-2 rounded"
+                  className="flex-1 bg-zinc-700 text-white px-3 py-2 rounded"
                 />
                 {coolDown.pace.pace &&
                   !/^(\d{1,2}):[0-5][0-9]$/.test(coolDown.pace.pace) && (
@@ -669,7 +669,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-300 hover:text-white"
+              className="px-4 py-2 text-zinc-300 hover:text-white"
             >
               Cancel
             </button>
@@ -678,7 +678,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
               disabled={isLoading}
               className={`px-4 py-2 rounded ${
                 isLoading
-                  ? "bg-gray-700 text-gray-500"
+                  ? "bg-zinc-700 text-zinc-500"
                   : "bg-vdot-blue hover:bg-vdot-blue-dark text-white"
               }`}
             >

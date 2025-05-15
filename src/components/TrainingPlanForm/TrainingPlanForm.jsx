@@ -91,9 +91,9 @@ export default function TrainingPlanForm() {
             onClick={handleSubmit}
             type="submit"
             disabled={isLoading}
-            className={`px-4 py-2 rounded ${
+            className={`px-4 py-2 rounded bg-zinc-200/20 hover:bg-zinc-600 ${
               isLoading
-                ? "bg-gray-400 cursor-not-allowed"
+                ? "bg-zinc-400 cursor-not-allowed"
                 : "bg-vdot-blue text-white hover:bg-vdot-blue-dark"
             }`}
           >

@@ -6,7 +6,7 @@ export default function DayWorkoutCard({ day, workout, onSelect, onRemove }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div className="bg-gray-800 rounded-lg p-4 shadow hover:shadow-lg transition-shadow">
+    <div className="bg-zinc-300/20 rounded-lg p-4 shadow hover:shadow-lg transition-shadow">
       <div className="flex justify-between items-center mb-2">
         <h3 className="font-medium text-vdot-blue">{day}</h3>
         {workout ? (
@@ -26,7 +26,7 @@ export default function DayWorkoutCard({ day, workout, onSelect, onRemove }) {
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="w-full py-2 px-4 bg-gray-700 hover:bg-gray-600 rounded text-sm text-gray-300 transition-colors"
+          className="w-full py-2 px-4 bg-zinc-100/20 hover:bg-zinc-600 rounded text-sm text-zinc-300 transition-colors"
         >
           + Add Workout
         </button>
