@@ -1,12 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
+import useAuthStore from "../store/authStore";
+import axios from "axios";
 
 const TrainingCalendar = () => {
-  const [currentMonth, setCurrentMonth] = useState(2); // March (0-indexed)
-  const [currentYear, setCurrentYear] = useState(2025);
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [trainings, setTrainings] = useState({});
+  const [weeklyStats, setWeeklyStats] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mapeo de tipos de entrenamiento a colores
+  const token = localStorage.getItem("token");
+  const { user } = useAuthStore();
+  const userId = user?._id || localStorage.getItem("userId");
+
   const workoutTypeColors = {
     "Easy Run": "bg-purple-500",
     "Long Run": "bg-green-500",
@@ -17,140 +26,189 @@ const TrainingCalendar = () => {
     "Recuperación activa": "bg-indigo-500",
   };
 
-  // Nombres de los meses
   const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
   ];
 
-  // Hardcoded calendar days for March 2025
-  const calendarDays = [
-    // Week 1 (February/March)
-    [
-      { day: 24, month: 1, year: 2025, isCurrentMonth: false },
-      { day: 25, month: 1, year: 2025, isCurrentMonth: false },
-      { day: 26, month: 1, year: 2025, isCurrentMonth: false },
-      { day: 27, month: 1, year: 2025, isCurrentMonth: false },
-      { day: 28, month: 1, year: 2025, isCurrentMonth: false },
-      { day: 1, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 2, month: 2, year: 2025, isCurrentMonth: true },
-    ],
-    // Week 2
-    [
-      { day: 3, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 4, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 5, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 6, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 7, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 8, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 9, month: 2, year: 2025, isCurrentMonth: true },
-    ],
-    // Week 3
-    [
-      { day: 10, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 11, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 12, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 13, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 14, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 15, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 16, month: 2, year: 2025, isCurrentMonth: true },
-    ],
-    // Week 4
-    [
-      { day: 17, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 18, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 19, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 20, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 21, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 22, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 23, month: 2, year: 2025, isCurrentMonth: true },
-    ],
-    // Week 5
-    [
-      { day: 24, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 25, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 26, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 27, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 28, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 29, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 30, month: 2, year: 2025, isCurrentMonth: true },
-    ],
-    // Week 6 (March/April)
-    [
-      { day: 31, month: 2, year: 2025, isCurrentMonth: true },
-      { day: 1, month: 3, year: 2025, isCurrentMonth: false },
-      { day: 2, month: 3, year: 2025, isCurrentMonth: false },
-      { day: 3, month: 3, year: 2025, isCurrentMonth: false },
-      { day: 4, month: 3, year: 2025, isCurrentMonth: false },
-      { day: 5, month: 3, year: 2025, isCurrentMonth: false },
-      { day: 6, month: 3, year: 2025, isCurrentMonth: false },
-    ],
-  ];
+  useEffect(() => {
+    const fetchTrainingData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch training plans for the current month
+        const startDate = new Date(currentYear, currentMonth, 1);
+        const endDate = new Date(currentYear, currentMonth + 1, 0);
+        
+        const response = await axios.get(
+          `https://web-back-4n3m.onrender.com/api/v1/training/plan/${userId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            params: {
+              startDate: startDate.toISOString(),
+              endDate: endDate.toISOString()
+            }
+          }
+        );
 
-  // Hardcoded weekly stats
-  const weeklyStats = [
-    { completed: "10.5", planned: "12.0" },
-    { completed: "15.2", planned: "16.8" },
-    { completed: "18.4", planned: "20.2" },
-    { completed: "21.0", planned: "23.1" },
-    { completed: "16.8", planned: "18.5" },
-    { completed: "5.3", planned: "6.0" },
-  ];
+        // Process the training plans into a format we can use
+        const processedTrainings = {};
+        const weeklyStatsData = [];
+        
+        if (response.data && response.data.data) {
+          response.data.data.forEach(plan => {
+            plan.workouts.forEach(workout => {
+              if (workout.workout) {
+                const date = new Date(plan.date);
+                date.setDate(date.getDate() + getDayOffset(workout.day));
+                
+                const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                
+                processedTrainings[dateKey] = {
+                  workoutType: workout.workout.workoutName,
+                  details: formatWorkoutDetails(workout.workout),
+                  completed: workout.completed,
+                  actualDistance: workout.actualDistance
+                };
+              }
+            });
+            
+            // Calculate weekly stats
+            weeklyStatsData.push({
+              completed: plan.completedDistance || 0,
+              planned: plan.totalDistance || 0
+            });
+          });
+        }
+        
+        setTrainings(processedTrainings);
+        setWeeklyStats(weeklyStatsData);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+        console.error("Error fetching training data:", err);
+      }
+    };
 
-  // Hardcoded trainings
-  const mockTrainings = {
-    "2025-03-03": { workoutType: "Easy Run", details: "40min @ 6:30/km" },
-    "2025-03-06": { workoutType: "Track Session", details: "10x400m" },
-    "2025-03-09": { workoutType: "Long Run", details: "18km @ 6:00/km" },
-    "2025-03-12": { workoutType: "Easy Run", details: "45min @ 6:30/km" },
-    "2025-03-15": {
-      workoutType: "Quality Session",
-      details: "Threshold 5x1000m",
-    },
-    "2025-03-18": { workoutType: "Easy Run", details: "40min @ 6:30/km" },
-    "2025-03-19": { workoutType: "Day Off", details: "Rest day" },
-    "2025-03-21": { workoutType: "Garmin Training", details: "VO2max 6x800m" },
-    "2025-03-23": { workoutType: "Long Run", details: "21km @ 5:50/km" },
-    "2025-03-27": {
-      workoutType: "Recuperación activa",
-      details: "30min easy jog",
-    },
-    "2025-03-30": { workoutType: "Track Session", details: "8x200m sprints" },
+    fetchTrainingData();
+  }, [userId, token, currentMonth, currentYear]);
+
+  const getDayOffset = (dayName) => {
+    const dayMap = {
+      "Monday": 0,
+      "Tuesday": 1,
+      "Wednesday": 2,
+      "Thursday": 3,
+      "Friday": 4,
+      "Saturday": 5,
+      "Sunday": 6
+    };
+    return dayMap[dayName] || 0;
   };
 
-  // Navegar al mes anterior (just for UI, doesn't actually change the data)
-  const goToPreviousMonth = () => {
-    alert("Navigation functionality disabled in static version");
-  };
-
-  // Navegar al mes siguiente (just for UI, doesn't actually change the data)
-  const goToNextMonth = () => {
-    alert("Navigation functionality disabled in static version");
-  };
-
-  // Obtener entrenamientos para una fecha específica (simplificado)
-  const getTrainingsForDate = (day) => {
-    const dateString = `${day.year}-${String(day.month + 1).padStart(
-      2,
-      "0"
-    )}-${String(day.day).padStart(2, "0")}`;
-    if (mockTrainings[dateString]) {
-      return [mockTrainings[dateString]];
+  const formatWorkoutDetails = (workout) => {
+    if (workout.workoutName === "Day Off") return "Rest day";
+    
+    let details = "";
+    if (workout.warmUp) {
+      details += `Warmup: ${workout.warmUp.time || workout.warmUp.distance} `;
     }
-    return [];
+    
+    if (workout.work && workout.work.length > 0) {
+      workout.work.forEach((item, index) => {
+        if (index > 0) details += " + ";
+        details += `${item.repetitions || 1}x${item.distance || item.time}`;
+      });
+    }
+    
+    if (workout.coolDown) {
+      details += ` + Cooldown: ${workout.coolDown.time || workout.coolDown.distance}`;
+    }
+    
+    return details || "Workout details";
   };
 
-  // Determinar si un día es hoy
+  const generateCalendarDays = () => {
+    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+    const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
+    
+    const startDay = firstDayOfMonth.getDay() === 0 ? 6 : firstDayOfMonth.getDay() - 1; // Monday start
+    const daysInMonth = lastDayOfMonth.getDate();
+    
+    const calendarDays = [];
+    let currentWeek = [];
+    
+    // Add days from previous month
+    const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
+    for (let i = startDay - 1; i >= 0; i--) {
+      currentWeek.push({
+        day: prevMonthLastDay - i,
+        month: currentMonth - 1,
+        year: currentMonth === 0 ? currentYear - 1 : currentYear,
+        isCurrentMonth: false
+      });
+    }
+    
+    // Add days from current month
+    for (let day = 1; day <= daysInMonth; day++) {
+      currentWeek.push({
+        day,
+        month: currentMonth,
+        year: currentYear,
+        isCurrentMonth: true
+      });
+      
+      if (currentWeek.length === 7) {
+        calendarDays.push(currentWeek);
+        currentWeek = [];
+      }
+    }
+    
+    // Add days from next month
+    if (currentWeek.length > 0) {
+      const daysNeeded = 7 - currentWeek.length;
+      for (let day = 1; day <= daysNeeded; day++) {
+        currentWeek.push({
+          day,
+          month: currentMonth + 1,
+          year: currentMonth === 11 ? currentYear + 1 : currentYear,
+          isCurrentMonth: false
+        });
+      }
+      calendarDays.push(currentWeek);
+    }
+    
+    return calendarDays;
+  };
+
+  const calendarDays = generateCalendarDays();
+
+  const goToPreviousMonth = () => {
+    setCurrentMonth(prev => {
+      if (prev === 0) {
+        setCurrentYear(year => year - 1);
+        return 11;
+      }
+      return prev - 1;
+    });
+  };
+
+  const goToNextMonth = () => {
+    setCurrentMonth(prev => {
+      if (prev === 11) {
+        setCurrentYear(year => year + 1);
+        return 0;
+      }
+      return prev + 1;
+    });
+  };
+
+  const getTrainingsForDate = (day) => {
+    const dateString = `${day.year}-${String(day.month + 1).padStart(2, "0")}-${String(day.day).padStart(2, "0")}`;
+    return trainings[dateString] ? [trainings[dateString]] : [];
+  };
+
   const isToday = (day) => {
     const today = new Date();
     return (
@@ -160,7 +218,6 @@ const TrainingCalendar = () => {
     );
   };
 
-  // Componente de entrenamiento individual
   const TrainingItem = ({ training }) => {
     const colorClass = workoutTypeColors[training.workoutType] || "bg-gray-500";
 
@@ -170,147 +227,129 @@ const TrainingCalendar = () => {
         {training.details && (
           <div className="text-xs opacity-80">{training.details}</div>
         )}
+        {training.completed && (
+          <div className="text-xs mt-1">✓ Completed</div>
+        )}
       </div>
     );
   };
 
+  if (loading) return <div className="text-center py-8">Loading calendar...</div>;
+  if (error) return <div className="text-center py-8 text-red-500">Error: {error}</div>;
+
   return (
-    <>
-      <div className="bg-zinc-900/50 text-gray-200 min-h-screen p-8 mx-30 rounded-xl shadow-lg">
-        <div className="max-w-6xl mx-auto">
-          {/* Header del calendario */}
-          <div className="flex justify-between items-center mb-6">
-            <button
-              onClick={goToPreviousMonth}
-              className="p-2 rounded-full hover:bg-zinc-700"
-            >
-              <ChevronLeft size={20} />
-            </button>
+    <div className="bg-zinc-900/50 text-gray-200 min-h-screen p-8 mx-30 rounded-xl shadow-lg">
+      <div className="max-w-6xl mx-auto">
+        {/* Calendar header */}
+        <div className="flex justify-between items-center mb-6">
+          <button
+            onClick={goToPreviousMonth}
+            className="p-2 rounded-full hover:bg-zinc-700"
+          >
+            <ChevronLeft size={20} />
+          </button>
 
-            <div className="flex items-center">
-              <span className="text-xl font-semibold">
-                {months[currentMonth]}
-              </span>
-              <span className="text-sm text-gray-400 ml-2">{currentYear}</span>
-            </div>
-
-            <button
-              onClick={goToNextMonth}
-              className="p-2 rounded-full hover:bg-zinc-700"
-            >
-              <ChevronRight size={20} />
-            </button>
+          <div className="flex items-center">
+            <span className="text-xl font-semibold">
+              {months[currentMonth]}
+            </span>
+            <span className="text-sm text-gray-400 ml-2">{currentYear}</span>
           </div>
 
-          {/* Días de la semana */}
-          <div className="grid grid-cols-7 gap-2 mb-2">
-            <div className="text-center text-gray-400 font-medium">Monday</div>
-            <div className="text-center text-gray-400 font-medium">Tuesday</div>
-            <div className="text-center text-gray-400 font-medium">
-              Wednesday
-            </div>
-            <div className="text-center text-gray-400 font-medium">
-              Thursday
-            </div>
-            <div className="text-center text-gray-400 font-medium">Friday</div>
-            <div className="text-center text-gray-400 font-medium">
-              Saturday
-            </div>
-            <div className="text-center text-gray-400 font-medium">Sunday</div>
+          <button
+            onClick={goToNextMonth}
+            className="p-2 rounded-full hover:bg-zinc-700"
+          >
+            <ChevronRight size={20} />
+          </button>
+        </div>
 
-            {/* Columna de total */}
-            <div className="col-span-7 text-right text-gray-400 font-medium pr-4">
-              Total
-            </div>
+        {/* Weekday headers */}
+        <div className="grid grid-cols-7 gap-2 mb-2">
+          {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(day => (
+            <div key={day} className="text-center text-gray-400 font-medium">{day}</div>
+          ))}
+          <div className="col-span-7 text-right text-gray-400 font-medium pr-4">
+            Total
           </div>
+        </div>
 
-          {/* Semanas */}
-          {calendarDays.map((week, weekIndex) => (
-            <div key={`week-${weekIndex}`} className="mb-4 relative">
-              <div className="grid grid-cols-7 gap-2">
-                {week.map((day, dayIndex) => {
-                  const trainingsForDay = getTrainingsForDate(day);
-                  const isCurrentDay = isToday(day);
+        {/* Calendar weeks */}
+        {calendarDays.map((week, weekIndex) => (
+          <div key={`week-${weekIndex}`} className="mb-4 relative">
+            <div className="grid grid-cols-7 gap-2">
+              {week.map((day, dayIndex) => {
+                const trainingsForDay = getTrainingsForDate(day);
+                const isCurrentDay = isToday(day);
 
-                  return (
-                    <div
-                      key={`day-${day.day}-${day.month}`}
-                      className={`
-                        ${
-                          day.isCurrentMonth
-                            ? "bg-zinc-800"
-                            : "bg-zinc-900 text-zinc-500"
-                        } 
-                        ${isCurrentDay ? "border-2 border-blue-500" : ""} 
-                        rounded-lg p-2 min-h-32 relative
-                        `}
-                    >
-                      <div className="flex justify-between items-center mb-2">
-                        <span
-                          className={`${
-                            isCurrentDay ? "text-blue-500 font-bold" : ""
-                          }`}
-                        >
-                          {day.day}
+                return (
+                  <div
+                    key={`day-${day.day}-${day.month}`}
+                    className={`
+                      ${day.isCurrentMonth ? "bg-zinc-800" : "bg-zinc-900 text-zinc-500"} 
+                      ${isCurrentDay ? "border-2 border-blue-500" : ""} 
+                      rounded-lg p-2 min-h-32 relative
+                    `}
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <span className={`${isCurrentDay ? "text-blue-500 font-bold" : ""}`}>
+                        {day.day}
+                      </span>
+                      {isCurrentDay && (
+                        <span className="text-xs font-medium text-blue-500">
+                          Today
                         </span>
-                        {isCurrentDay && (
-                          <span className="text-xs font-medium text-blue-500">
-                            Today
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="overflow-y-auto max-h-28">
-                        {/* Entrenamientos del día */}
-                        {trainingsForDay.map((training, idx) => (
-                          <TrainingItem
-                            key={`training-${idx}`}
-                            training={training}
-                          />
-                        ))}
-                      </div>
-                      {day.isCurrentMonth && (
-                        <button>
-                          <Link to={"/addActivity"}>
-                            <div className="text-xs text-center text-gray-400 hover:bg-gray-500/30 p-2 rounded-md min-w-full justify-center">
-                              Add activity
-                            </div>
-                          </Link>
-                        </button>
                       )}
                     </div>
-                  );
-                })}
-              </div>
-              {/* Totales semanales */}
-              <div className="bg-zinc-800 rounded-lg p-2 min-h-20 flex items-center justify-end mt-2">
-                <div className="flex flex-col items-end">
-                  <div className="text-2xl font-bold">
-                    {weeklyStats[weekIndex]?.completed}km
+
+                    <div className="overflow-y-auto max-h-28">
+                      {trainingsForDay.map((training, idx) => (
+                        <TrainingItem key={`training-${idx}`} training={training} />
+                      ))}
+                    </div>
+                    
+                    {day.isCurrentMonth && (
+                      <Link 
+                        to="/addActivity" 
+                        state={{ selectedDate: new Date(day.year, day.month, day.day) }}
+                        className="block text-xs text-center text-gray-400 hover:bg-gray-500/30 p-2 rounded-md mt-1"
+                      >
+                        Add activity
+                      </Link>
+                    )}
                   </div>
-                  <div className="text-sm text-gray-400">completed</div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    of {weeklyStats[weekIndex]?.planned}km
-                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Weekly stats */}
+            <div className="bg-zinc-800 rounded-lg p-2 min-h-20 flex items-center justify-end mt-2">
+              <div className="flex flex-col items-end">
+                <div className="text-2xl font-bold">
+                  {weeklyStats[weekIndex]?.completed.toFixed(1) || "0.0"}km
                 </div>
-                <div className="ml-4">
-                  <div className="w-16 h-16 rounded-full border-4 border-gray-600 flex items-center justify-center relative">
-                    <div
-                      className="absolute inset-0 rounded-full border-4 border-blue-500"
-                      style={{
-                        clipPath: `polygon(0 0, 100% 0, 100% 100%, 0% 100%)`,
-                        opacity: 0.7,
-                      }}
-                    ></div>
-                    <BarChart3 size={24} className="text-gray-400" />
-                  </div>
+                <div className="text-sm text-gray-400">completed</div>
+                <div className="text-xs text-gray-500 mt-1">
+                  of {weeklyStats[weekIndex]?.planned.toFixed(1) || "0.0"}km
+                </div>
+              </div>
+              <div className="ml-4">
+                <div className="w-16 h-16 rounded-full border-4 border-gray-600 flex items-center justify-center relative">
+                  <div
+                    className="absolute inset-0 rounded-full border-4 border-blue-500"
+                    style={{
+                      clipPath: `polygon(0 0, 100% 0, 100% 100%, 0% 100%)`,
+                      opacity: 0.7,
+                    }}
+                  ></div>
+                  <BarChart3 size={24} className="text-gray-400" />
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
-    </>
+    </div>
   );
 };
 

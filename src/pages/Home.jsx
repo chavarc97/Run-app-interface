@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import TrainingCalendar from "../components/TrainingCalendar";
 import React, { useState, useEffect } from 'react';
-
+import useAuthStore from "../store/authStore";
 
 const Home = () => {
+  const { user } = useAuthStore();
   return (
     <>
       <div className=" m-10  border-b-2 border-zinc-400/30 pb-4 flex flex-col items-center">
@@ -12,8 +13,8 @@ const Home = () => {
           className="w-50 h-50 rounded-full bg-neutral-400 items-center flex justify-center"
         >
           <img
-            className="w-40 h-40 rounded-full"
-            src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"
+            className="w-48 h-48 rounded-full"
+            src={user?.avatar || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"}
             alt=""
           />
         </Link>
