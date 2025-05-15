@@ -128,42 +128,7 @@ const SignIn = () => {
           </div>
         </div>
 
-        <div className="space-y-3">
-          <button
-            onClick={() => alert("Google Sign In not implemented")}
-            className="w-full flex items-center justify-center px-4 py-2 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-          >
-            <img
-              src="https://cdn.cdnlogo.com/logos/g/35/google-icon.svg"
-              alt="Google"
-              className="h-5 w-5 mr-2"
-            />
-            <span>Sign in with Google</span>
-          </button>
 
-          <button
-            onClick={() => alert("Facebook Sign In not implemented")}
-            className="w-full flex items-center justify-center px-4 py-2 rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-2"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" />
-            </svg>
-            <span>Sign in with Facebook</span>
-          </button>
-
-          <button
-            onClick={() => alert("Apple Sign In not implemented")}
-            className="w-full flex items-center justify-center px-4 py-2 rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-900"
-          >
-            <FaApple className="h-5 w-5 mr-2" />
-            <span>Sign in with Apple</span>
-          </button>
-        </div>
 
         <div className="text-center mt-6">
           <p className="text-sm text-gray-300">
