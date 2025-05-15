@@ -45,6 +45,21 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
         interval: "04:00",
         repetition: "03:30",
       };
+
+      // Validate pace format before submission
+      const validatePace = (pace) => {
+        if (!pace) return undefined;
+        // Allow both mm:ss and m:ss formats
+        if (!/^(\d{1,2}):[0-5][0-9]$/.test(pace)) {
+          throw new Error(
+            `Invalid pace format: ${pace}. Must be m:ss or mm:ss`
+          );
+        }
+        // Format to mm:ss (pad single-digit minutes)
+        const [mm, ss] = pace.split(":");
+        return `${mm.padStart(2, "0")}:${ss}`;
+      };
+
       const workoutData = {
         workoutName,
         warmUp:
@@ -52,19 +67,35 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
             ? {
                 ...warmUp,
                 distance: warmUp.distance.value ? warmUp.distance : undefined,
-                pace: warmUp.pace?.pace
-                  ? userPaces[warmUp.pace.type]
+                pace: warmUp.pace.pace
+                  ? {
+                      type: warmUp.pace.type,
+                      pace: validatePace(warmUp.pace.pace),
+                    }
                   : undefined,
               }
             : undefined,
         work: workSegments
           .filter((seg) => seg.time || seg.distance?.value)
-          .map((seg) => ({
-            ...seg,
-            distance: seg.distance?.value ? seg.distance : undefined,
-            pace: seg.pace?.pace ? userPaces[seg.pace.type] : undefined,
-            splits: [],
-          })),
+          .map((seg) => {
+            // Get the pace - either user input or from user's stored paces
+            let paceValue;
+            if (seg.pace.pace) {
+              paceValue = validatePace(seg.pace.pace);
+            } else {
+              paceValue = validatePace(userPaces[seg.pace.type] || "06:00");
+            }
+
+            return {
+              ...seg,
+              distance: seg.distance?.value ? seg.distance : undefined,
+              pace: {
+                type: seg.pace.type,
+                pace: paceValue,
+              },
+              splits: [],
+            };
+          }),
         coolDown:
           coolDown.time || coolDown.distance.value
             ? {
@@ -72,8 +103,11 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                 distance: coolDown.distance.value
                   ? coolDown.distance
                   : undefined,
-                pace: coolDown.pace?.pace
-                  ? userPaces[coolDown.pace.type]
+                pace: coolDown.pace.pace
+                  ? {
+                      type: coolDown.pace.type,
+                      pace: validatePace(coolDown.pace.pace),
+                    }
                   : undefined,
               }
             : undefined,
@@ -82,8 +116,6 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
 
       // Remove undefined fields
       const cleanedData = JSON.parse(JSON.stringify(workoutData));
-
-      console.log("Submitting workout:", cleanedData); // Debug log
 
       const response = await axios.post(
         "https://web-back-4n3m.onrender.com/api/v1/training/workouts",
@@ -99,7 +131,10 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
       onSave(response.data.data);
       onClose();
     } catch (err) {
-      console.error("Error creating workout:", err.response?.data); // More detailed error logging
+      console.error("Error creating workout:", {
+        message: err.message,
+        response: err.response?.data,
+      }); // More detailed error logging
       setError(err.response?.data?.message || err.message);
     } finally {
       setIsLoading(false);
@@ -118,6 +153,46 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
         splits: [],
       },
     ]);
+  };
+
+  const validatePace = (pace) => {
+    if (!pace) return undefined;
+    // Remove any non-digit characters
+    const cleaned = pace.replace(/[^\d:]/g, "");
+    // Split into mm and ss
+    const [mm = "00", ss = "00"] = cleaned.split(":");
+
+    // Format minutes (00-59)
+    const formattedMm = Math.min(
+      59,
+      parseInt(mm.padStart(2, "0").substring(0, 2))
+    );
+    // Format seconds (00-59)
+    const formattedSs = Math.min(
+      59,
+      parseInt(ss.padStart(2, "0").substring(0, 2))
+    );
+
+    return `${String(formattedMm).padStart(2, "0")}:${String(
+      formattedSs
+    ).padStart(2, "0")}`;
+  };
+
+  const handlePaceChange = (value, setPace) => {
+    // Allow only digits and colon, max length 5 (mm:ss)
+    if (/^[\d:]*$/.test(value) && value.length <= 5) {
+      setPace(value);
+    }
+  };
+
+  const handlePaceBlur = (currentValue, setPace) => {
+    if (currentValue) {
+      // Format to mm:ss (e.g., "5" -> "05:00", "5:3" -> "05:30", "4:56" -> "04:56")
+      const [mm = "00", ss = "00"] = currentValue.split(":");
+      const formattedMm = mm.padStart(2, "0").slice(0, 2);
+      const formattedSs = ss.padStart(2, "0").slice(0, 2);
+      setPace(`${formattedMm}:${formattedSs}`);
+    }
   };
 
   const removeWorkSegment = (index) => {
@@ -232,6 +307,7 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
               </div>
             </div>
 
+            {/* pace input */}
             <div className="mt-4">
               <label className="block text-sm font-medium text-gray-300 mb-1">
                 Pace (mm:ss)
@@ -249,7 +325,6 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                 >
                   <option value="easy">Easy</option>
                   <option value="marathon">Marathon</option>
-                  <option value="tempo">Tempo</option>
                   <option value="threshold">Threshold</option>
                   <option value="interval">Interval</option>
                   <option value="repetition">Repetition</option>
@@ -258,15 +333,31 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                   type="text"
                   value={warmUp.pace.pace}
                   onChange={(e) =>
-                    setWarmUp({
-                      ...warmUp,
-                      pace: { ...warmUp.pace, pace: e.target.value },
-                    })
+                    handlePaceChange(e.target.value, (val) =>
+                      setWarmUp({
+                        ...warmUp,
+                        pace: { ...warmUp.pace, pace: val },
+                      })
+                    )
                   }
+                  onBlur={(e) =>
+                    handlePaceBlur(e.target.value, (val) =>
+                      setWarmUp({
+                        ...warmUp,
+                        pace: { ...warmUp.pace, pace: val },
+                      })
+                    )
+                  }
+                  pattern="^(\d{1,2}):[0-5][0-9]$"
                   placeholder="05:30"
                   className="flex-1 bg-gray-700 text-white px-3 py-2 rounded"
-                  pattern="^([0-5][0-9]):[0-5][0-9]$"
                 />
+                {warmUp.pace.pace &&
+                  !/^(\d{1,2}):[0-5][0-9]$/.test(warmUp.pace.pace) && (
+                    <p className="absolute -bottom-5 left-0 text-xs text-red-400">
+                      Must be m:ss or mm:ss (e.g., 5:30 or 05:30)
+                    </p>
+                  )}
               </div>
             </div>
           </div>
@@ -414,13 +505,41 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                       <input
                         type="text"
                         value={segment.pace.pace}
-                        onChange={(e) =>
-                          updateWorkSegment(index, "pace.pace", e.target.value)
-                        }
+                        pattern="^(\d{1,2}):[0-5][0-9]$"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          // Allow only digits and colon, max length 5 (mm:ss)
+                          if (/^[\d:]*$/.test(value) && value.length <= 5) {
+                            updateWorkSegment(index, "pace.pace", value);
+                          }
+                        }}
+                        onBlur={(e) => {
+                          const value = e.target.value;
+                          if (value) {
+                            // Auto-format to mm:ss
+                            const [mm = "00", ss = "00"] = value.split(":");
+                            const formattedMm = mm
+                              .padStart(2, "0")
+                              .substring(0, 2);
+                            const formattedSs = ss
+                              .padStart(2, "0")
+                              .substring(0, 2);
+                            updateWorkSegment(
+                              index,
+                              "pace.pace",
+                              `${formattedMm}:${formattedSs}`
+                            );
+                          }
+                        }}
                         placeholder="05:30"
-                        className="flex-1 bg-gray-700 text-white px-3 py-2 rounded"
-                        pattern="^([0-5][0-9]):[0-5][0-9]$"
+                        className="w-full bg-gray-700 text-white px-3 py-2 rounded"
                       />
+                      {segment.pace.pace &&
+                        !/^(\d{1,2}):[0-5][0-9]$/.test(segment.pace.pace) && (
+                          <p className="absolute -bottom-5 left-0 text-xs text-red-400">
+                            Must be m:ss or mm:ss (e.g., 5:30 or 05:30)
+                          </p>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -517,15 +636,31 @@ export default function CreateWorkoutModal({ isOpen, onClose, onSave }) {
                   type="text"
                   value={coolDown.pace.pace}
                   onChange={(e) =>
-                    setCoolDown({
-                      ...coolDown,
-                      pace: { ...coolDown.pace, pace: e.target.value },
-                    })
+                    handlePaceChange(e.target.value, (val) =>
+                      setCoolDown({
+                        ...coolDown,
+                        pace: { ...coolDown.pace, pace: val },
+                      })
+                    )
                   }
+                  onBlur={(e) =>
+                    handlePaceBlur(e.target.value, (val) =>
+                      setCoolDown({
+                        ...coolDown,
+                        pace: { ...coolDown.pace, pace: val },
+                      })
+                    )
+                  }
+                  pattern="^(\d{1,2}):[0-5][0-9]$"
                   placeholder="05:30"
                   className="flex-1 bg-gray-700 text-white px-3 py-2 rounded"
-                  pattern="^([0-5][0-9]):[0-5][0-9]$"
                 />
+                {coolDown.pace.pace &&
+                  !/^(\d{1,2}):[0-5][0-9]$/.test(coolDown.pace.pace) && (
+                    <p className="absolute -bottom-5 left-0 text-xs text-red-400">
+                      Must be m:ss or mm:ss (e.g., 5:30 or 05:30)
+                    </p>
+                  )}
               </div>
             </div>
           </div>
